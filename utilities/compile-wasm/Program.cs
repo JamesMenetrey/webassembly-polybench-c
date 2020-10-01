@@ -53,8 +53,9 @@ for (var i = 0; i < args.Length; i++)
             if (!Path.IsPathRooted(compilerOutputPath))
             {
                 compilerOutputPath = Path.Combine(polyBenchDir.FullName, compilerOutputPath);
-                Directory.CreateDirectory(compilerOutputPath);
             }
+            
+            Directory.CreateDirectory(compilerOutputPath);
             break;
         case "--sgx":
             isCompiledForSgx = true;
