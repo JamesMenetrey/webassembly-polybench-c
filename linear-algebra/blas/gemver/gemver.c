@@ -115,42 +115,24 @@ void kernel_gemver(int n,
 
 #pragma endscop
 }
+/* Retrieve problem size. */
+int n = N;
 
+/* Variable declaration. */
+DATA_TYPE alpha;
+DATA_TYPE beta;
+POLYBENCH_2D_ARRAY_DECL_ONLY(A, DATA_TYPE, N, N, n, n);
+POLYBENCH_1D_ARRAY_DECL_ONLY(u1, DATA_TYPE, N, n);
+POLYBENCH_1D_ARRAY_DECL_ONLY(v1, DATA_TYPE, N, n);
+POLYBENCH_1D_ARRAY_DECL_ONLY(u2, DATA_TYPE, N, n);
+POLYBENCH_1D_ARRAY_DECL_ONLY(v2, DATA_TYPE, N, n);
+POLYBENCH_1D_ARRAY_DECL_ONLY(w, DATA_TYPE, N, n);
+POLYBENCH_1D_ARRAY_DECL_ONLY(x, DATA_TYPE, N, n);
+POLYBENCH_1D_ARRAY_DECL_ONLY(y, DATA_TYPE, N, n);
+POLYBENCH_1D_ARRAY_DECL_ONLY(z, DATA_TYPE, N, n);
 
-int main(int argc, char** argv)
+void benchmark(void)
 {
-  /* Retrieve problem size. */
-  int n = N;
-
-  /* Variable declaration/allocation. */
-  DATA_TYPE alpha;
-  DATA_TYPE beta;
-  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, N, N, n, n);
-  POLYBENCH_1D_ARRAY_DECL(u1, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_DECL(v1, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_DECL(u2, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_DECL(v2, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_DECL(w, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_DECL(x, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_DECL(y, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_DECL(z, DATA_TYPE, N, n);
-
-
-  /* Initialize array(s). */
-  init_array (n, &alpha, &beta,
-	      POLYBENCH_ARRAY(A),
-	      POLYBENCH_ARRAY(u1),
-	      POLYBENCH_ARRAY(v1),
-	      POLYBENCH_ARRAY(u2),
-	      POLYBENCH_ARRAY(v2),
-	      POLYBENCH_ARRAY(w),
-	      POLYBENCH_ARRAY(x),
-	      POLYBENCH_ARRAY(y),
-	      POLYBENCH_ARRAY(z));
-
-  /* Start timer. */
-  polybench_start_instruments;
-
   /* Run kernel. */
   kernel_gemver (n, alpha, beta,
 		 POLYBENCH_ARRAY(A),
@@ -162,11 +144,10 @@ int main(int argc, char** argv)
 		 POLYBENCH_ARRAY(x),
 		 POLYBENCH_ARRAY(y),
 		 POLYBENCH_ARRAY(z));
+}
 
-  /* Stop and print timer. */
-  polybench_stop_instruments;
-  polybench_print_instruments;
-
+void finalize(int argc)
+{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(n, POLYBENCH_ARRAY(w)));
@@ -181,6 +162,33 @@ int main(int argc, char** argv)
   POLYBENCH_FREE_ARRAY(x);
   POLYBENCH_FREE_ARRAY(y);
   POLYBENCH_FREE_ARRAY(z);
+}
+
+
+int main(int argc, char** argv)
+{
+  /* Variable allocation. */
+  POLYBENCH_2D_ARRAY_ALLOC(A, DATA_TYPE, N, N, n, n);
+  POLYBENCH_1D_ARRAY_ALLOC(u1, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_ALLOC(v1, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_ALLOC(u2, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_ALLOC(v2, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_ALLOC(w, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_ALLOC(x, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_ALLOC(y, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_ALLOC(z, DATA_TYPE, N, n);
+
+  /* Initialize array(s). */
+  init_array (n, &alpha, &beta,
+	      POLYBENCH_ARRAY(A),
+	      POLYBENCH_ARRAY(u1),
+	      POLYBENCH_ARRAY(v1),
+	      POLYBENCH_ARRAY(u2),
+	      POLYBENCH_ARRAY(v2),
+	      POLYBENCH_ARRAY(w),
+	      POLYBENCH_ARRAY(x),
+	      POLYBENCH_ARRAY(y),
+	      POLYBENCH_ARRAY(z));
 
   return 0;
 }

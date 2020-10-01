@@ -78,35 +78,38 @@ void kernel_floyd_warshall(int n,
 
 }
 
+/* Retrieve problem size. */
+int n = N;
 
-int main(int argc, char** argv)
+/* Variable declaration. */
+POLYBENCH_2D_ARRAY_DECL_ONLY(path, DATA_TYPE, N, N, n, n);
+
+void benchmark(void)
 {
-  /* Retrieve problem size. */
-  int n = N;
-
-  /* Variable declaration/allocation. */
-  POLYBENCH_2D_ARRAY_DECL(path, DATA_TYPE, N, N, n, n);
-
-
-  /* Initialize array(s). */
-  init_array (n, POLYBENCH_ARRAY(path));
-
-  /* Start timer. */
-  polybench_start_instruments;
-
   /* Run kernel. */
   kernel_floyd_warshall (n, POLYBENCH_ARRAY(path));
+}
 
-  /* Stop and print timer. */
-  polybench_stop_instruments;
-  polybench_print_instruments;
-
+void finalize(int argc)
+{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(n, POLYBENCH_ARRAY(path)));
 
   /* Be clean. */
   POLYBENCH_FREE_ARRAY(path);
+}
 
+
+int main(int argc, char** argv)
+{
+  /* Variable allocation. */
+  POLYBENCH_2D_ARRAY_ALLOC(path, DATA_TYPE, N, N, n, n);
+
+  /* Initialize array(s). */
+  init_array (n, POLYBENCH_ARRAY(path));
+
+  benchmark();
+  
   return 0;
 }

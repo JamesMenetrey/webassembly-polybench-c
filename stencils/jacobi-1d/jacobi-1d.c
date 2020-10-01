@@ -80,31 +80,22 @@ void kernel_jacobi_1d(int tsteps,
 
 }
 
+/* Retrieve problem size. */
+int n = N;
+int tsteps = TSTEPS;
 
-int main(int argc, char** argv)
+/* Variable declaration. */
+POLYBENCH_1D_ARRAY_DECL_ONLY(A, DATA_TYPE, N, n);
+POLYBENCH_1D_ARRAY_DECL_ONLY(B, DATA_TYPE, N, n);
+
+void benchmark(void)
 {
-  /* Retrieve problem size. */
-  int n = N;
-  int tsteps = TSTEPS;
-
-  /* Variable declaration/allocation. */
-  POLYBENCH_1D_ARRAY_DECL(A, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_DECL(B, DATA_TYPE, N, n);
-
-
-  /* Initialize array(s). */
-  init_array (n, POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B));
-
-  /* Start timer. */
-  polybench_start_instruments;
-
   /* Run kernel. */
   kernel_jacobi_1d(tsteps, n, POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B));
+}
 
-  /* Stop and print timer. */
-  polybench_stop_instruments;
-  polybench_print_instruments;
-
+void finalize(int argc)
+{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(n, POLYBENCH_ARRAY(A)));
@@ -112,6 +103,17 @@ int main(int argc, char** argv)
   /* Be clean. */
   POLYBENCH_FREE_ARRAY(A);
   POLYBENCH_FREE_ARRAY(B);
+}
+
+
+int main(int argc, char** argv)
+{
+  /* Variable allocation. */
+  POLYBENCH_1D_ARRAY_ALLOC(A, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_ALLOC(B, DATA_TYPE, N, n);
+
+  /* Initialize array(s). */
+  init_array (n, POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B));
 
   return 0;
 }

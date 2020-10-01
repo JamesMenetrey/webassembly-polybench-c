@@ -118,42 +118,29 @@ void kernel_fdtd_2d(int tmax,
 #pragma endscop
 }
 
+/* Retrieve problem size. */
+int tmax = TMAX;
+int nx = NX;
+int ny = NY;
 
-int main(int argc, char** argv)
+/* Variable declaration. */
+POLYBENCH_2D_ARRAY_DECL_ONLY(ex,DATA_TYPE,NX,NY,nx,ny);
+POLYBENCH_2D_ARRAY_DECL_ONLY(ey,DATA_TYPE,NX,NY,nx,ny);
+POLYBENCH_2D_ARRAY_DECL_ONLY(hz,DATA_TYPE,NX,NY,nx,ny);
+POLYBENCH_1D_ARRAY_DECL_ONLY(_fict_,DATA_TYPE,TMAX,tmax);
+
+void benchmark(void)
 {
-  /* Retrieve problem size. */
-  int tmax = TMAX;
-  int nx = NX;
-  int ny = NY;
-
-  /* Variable declaration/allocation. */
-  POLYBENCH_2D_ARRAY_DECL(ex,DATA_TYPE,NX,NY,nx,ny);
-  POLYBENCH_2D_ARRAY_DECL(ey,DATA_TYPE,NX,NY,nx,ny);
-  POLYBENCH_2D_ARRAY_DECL(hz,DATA_TYPE,NX,NY,nx,ny);
-  POLYBENCH_1D_ARRAY_DECL(_fict_,DATA_TYPE,TMAX,tmax);
-
-  /* Initialize array(s). */
-  init_array (tmax, nx, ny,
-	      POLYBENCH_ARRAY(ex),
-	      POLYBENCH_ARRAY(ey),
-	      POLYBENCH_ARRAY(hz),
-	      POLYBENCH_ARRAY(_fict_));
-
-  /* Start timer. */
-  polybench_start_instruments;
-
   /* Run kernel. */
   kernel_fdtd_2d (tmax, nx, ny,
 		  POLYBENCH_ARRAY(ex),
 		  POLYBENCH_ARRAY(ey),
 		  POLYBENCH_ARRAY(hz),
 		  POLYBENCH_ARRAY(_fict_));
+}
 
-
-  /* Stop and print timer. */
-  polybench_stop_instruments;
-  polybench_print_instruments;
-
+void finalize(int argc)
+{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(nx, ny, POLYBENCH_ARRAY(ex),
@@ -165,6 +152,23 @@ int main(int argc, char** argv)
   POLYBENCH_FREE_ARRAY(ey);
   POLYBENCH_FREE_ARRAY(hz);
   POLYBENCH_FREE_ARRAY(_fict_);
+}
+
+
+int main(int argc, char** argv)
+{
+  /* Variable allocation. */
+  POLYBENCH_2D_ARRAY_ALLOC(ex,DATA_TYPE,NX,NY,nx,ny);
+  POLYBENCH_2D_ARRAY_ALLOC(ey,DATA_TYPE,NX,NY,nx,ny);
+  POLYBENCH_2D_ARRAY_ALLOC(hz,DATA_TYPE,NX,NY,nx,ny);
+  POLYBENCH_1D_ARRAY_ALLOC(_fict_,DATA_TYPE,TMAX,tmax);
+
+  /* Initialize array(s). */
+  init_array (tmax, nx, ny,
+	      POLYBENCH_ARRAY(ex),
+	      POLYBENCH_ARRAY(ey),
+	      POLYBENCH_ARRAY(hz),
+	      POLYBENCH_ARRAY(_fict_));
 
   return 0;
 }

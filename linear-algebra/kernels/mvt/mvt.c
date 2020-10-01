@@ -95,31 +95,18 @@ void kernel_mvt(int n,
 
 }
 
+/* Retrieve problem size. */
+int n = N;
 
-int main(int argc, char** argv)
+/* Variable declaration/ */
+POLYBENCH_2D_ARRAY_DECL_ONLY(A, DATA_TYPE, N, N, n, n);
+POLYBENCH_1D_ARRAY_DECL_ONLY(x1, DATA_TYPE, N, n);
+POLYBENCH_1D_ARRAY_DECL_ONLY(x2, DATA_TYPE, N, n);
+POLYBENCH_1D_ARRAY_DECL_ONLY(y_1, DATA_TYPE, N, n);
+POLYBENCH_1D_ARRAY_DECL_ONLY(y_2, DATA_TYPE, N, n);
+
+void benchmark(void)
 {
-  /* Retrieve problem size. */
-  int n = N;
-
-  /* Variable declaration/allocation. */
-  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, N, N, n, n);
-  POLYBENCH_1D_ARRAY_DECL(x1, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_DECL(x2, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_DECL(y_1, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_DECL(y_2, DATA_TYPE, N, n);
-
-
-  /* Initialize array(s). */
-  init_array (n,
-	      POLYBENCH_ARRAY(x1),
-	      POLYBENCH_ARRAY(x2),
-	      POLYBENCH_ARRAY(y_1),
-	      POLYBENCH_ARRAY(y_2),
-	      POLYBENCH_ARRAY(A));
-
-  /* Start timer. */
-  polybench_start_instruments;
-
   /* Run kernel. */
   kernel_mvt (n,
 	      POLYBENCH_ARRAY(x1),
@@ -127,11 +114,10 @@ int main(int argc, char** argv)
 	      POLYBENCH_ARRAY(y_1),
 	      POLYBENCH_ARRAY(y_2),
 	      POLYBENCH_ARRAY(A));
+}
 
-  /* Stop and print timer. */
-  polybench_stop_instruments;
-  polybench_print_instruments;
-
+void finalize(int argc)
+{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(n, POLYBENCH_ARRAY(x1), POLYBENCH_ARRAY(x2)));
@@ -142,6 +128,26 @@ int main(int argc, char** argv)
   POLYBENCH_FREE_ARRAY(x2);
   POLYBENCH_FREE_ARRAY(y_1);
   POLYBENCH_FREE_ARRAY(y_2);
+}
+
+
+int main(int argc, char** argv)
+{
+  /* Variable allocation. */
+  POLYBENCH_2D_ARRAY_ALLOC(A, DATA_TYPE, N, N, n, n);
+  POLYBENCH_1D_ARRAY_ALLOC(x1, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_ALLOC(x2, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_ALLOC(y_1, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_ALLOC(y_2, DATA_TYPE, N, n);
+
+
+  /* Initialize array(s). */
+  init_array (n,
+	      POLYBENCH_ARRAY(x1),
+	      POLYBENCH_ARRAY(x2),
+	      POLYBENCH_ARRAY(y_1),
+	      POLYBENCH_ARRAY(y_2),
+	      POLYBENCH_ARRAY(A));
 
   return 0;
 }

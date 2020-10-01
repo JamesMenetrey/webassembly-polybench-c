@@ -93,38 +93,30 @@ void kernel_covariance(int m, int n,
       }
 #pragma endscop
 
-}
+}  
+
+/* Retrieve problem size. */
+int n = N;
+int m = M;
+
+/* Variable declaration. */
+DATA_TYPE float_n;
+POLYBENCH_2D_ARRAY_DECL_ONLY(data,DATA_TYPE,N,M,n,m);
+POLYBENCH_2D_ARRAY_DECL_ONLY(cov,DATA_TYPE,M,M,m,m);
+POLYBENCH_1D_ARRAY_DECL_ONLY(mean,DATA_TYPE,M,m);
 
 
-int main(int argc, char** argv)
+void benchmark(void)
 {
-  /* Retrieve problem size. */
-  int n = N;
-  int m = M;
-
-  /* Variable declaration/allocation. */
-  DATA_TYPE float_n;
-  POLYBENCH_2D_ARRAY_DECL(data,DATA_TYPE,N,M,n,m);
-  POLYBENCH_2D_ARRAY_DECL(cov,DATA_TYPE,M,M,m,m);
-  POLYBENCH_1D_ARRAY_DECL(mean,DATA_TYPE,M,m);
-
-
-  /* Initialize array(s). */
-  init_array (m, n, &float_n, POLYBENCH_ARRAY(data));
-
-  /* Start timer. */
-  polybench_start_instruments;
-
   /* Run kernel. */
   kernel_covariance (m, n, float_n,
 		     POLYBENCH_ARRAY(data),
 		     POLYBENCH_ARRAY(cov),
 		     POLYBENCH_ARRAY(mean));
+}
 
-  /* Stop and print timer. */
-  polybench_stop_instruments;
-  polybench_print_instruments;
-
+void finalize(int argc)
+{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(m, POLYBENCH_ARRAY(cov)));
@@ -133,6 +125,17 @@ int main(int argc, char** argv)
   POLYBENCH_FREE_ARRAY(data);
   POLYBENCH_FREE_ARRAY(cov);
   POLYBENCH_FREE_ARRAY(mean);
+}
+
+int main(int argc, char** argv)
+{
+  /* Variable allocation. */
+  POLYBENCH_2D_ARRAY_ALLOC(data,DATA_TYPE,N,M,n,m);
+  POLYBENCH_2D_ARRAY_ALLOC(cov,DATA_TYPE,M,M,m,m);
+  POLYBENCH_1D_ARRAY_ALLOC(mean,DATA_TYPE,M,m);
+
+  /* Initialize array(s). */
+  init_array (m, n, &float_n, POLYBENCH_ARRAY(data));
 
   return 0;
 }

@@ -97,41 +97,29 @@ void kernel_syr2k(int n, int m,
 #pragma endscop
 
 }
+/* Retrieve problem size. */
+int n = N;
+int m = M;
 
+/* Variable declaration. */
+DATA_TYPE alpha;
+DATA_TYPE beta;
+POLYBENCH_2D_ARRAY_DECL_ONLY(C,DATA_TYPE,N,N,n,n);
+POLYBENCH_2D_ARRAY_DECL_ONLY(A,DATA_TYPE,N,M,n,m);
+POLYBENCH_2D_ARRAY_DECL_ONLY(B,DATA_TYPE,N,M,n,m);
 
-int main(int argc, char** argv)
+void benchmark(void)
 {
-  /* Retrieve problem size. */
-  int n = N;
-  int m = M;
-
-  /* Variable declaration/allocation. */
-  DATA_TYPE alpha;
-  DATA_TYPE beta;
-  POLYBENCH_2D_ARRAY_DECL(C,DATA_TYPE,N,N,n,n);
-  POLYBENCH_2D_ARRAY_DECL(A,DATA_TYPE,N,M,n,m);
-  POLYBENCH_2D_ARRAY_DECL(B,DATA_TYPE,N,M,n,m);
-
-  /* Initialize array(s). */
-  init_array (n, m, &alpha, &beta,
-	      POLYBENCH_ARRAY(C),
-	      POLYBENCH_ARRAY(A),
-	      POLYBENCH_ARRAY(B));
-
-  /* Start timer. */
-  polybench_start_instruments;
-
   /* Run kernel. */
   kernel_syr2k (n, m,
 		alpha, beta,
 		POLYBENCH_ARRAY(C),
 		POLYBENCH_ARRAY(A),
 		POLYBENCH_ARRAY(B));
+}
 
-  /* Stop and print timer. */
-  polybench_stop_instruments;
-  polybench_print_instruments;
-
+void finalize(int argc)
+{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(n, POLYBENCH_ARRAY(C)));
@@ -140,6 +128,21 @@ int main(int argc, char** argv)
   POLYBENCH_FREE_ARRAY(C);
   POLYBENCH_FREE_ARRAY(A);
   POLYBENCH_FREE_ARRAY(B);
+}
+
+
+int main(int argc, char** argv)
+{
+  /* Variable declaration. */
+  POLYBENCH_2D_ARRAY_ALLOC(C,DATA_TYPE,N,N,n,n);
+  POLYBENCH_2D_ARRAY_ALLOC(A,DATA_TYPE,N,M,n,m);
+  POLYBENCH_2D_ARRAY_ALLOC(B,DATA_TYPE,N,M,n,m);
+
+  /* Initialize array(s). */
+  init_array (n, m, &alpha, &beta,
+	      POLYBENCH_ARRAY(C),
+	      POLYBENCH_ARRAY(A),
+	      POLYBENCH_ARRAY(B));
 
   return 0;
 }

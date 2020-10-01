@@ -10,8 +10,12 @@ ARG POLYBENCHC_ROOT_DIR=/polybenchc
 # ==============================
 # .NET configuration
 # ==============================
+
 # Enable another user than root to execute dotnet
 ENV DOTNET_CLI_HOME="/tmp/"
+
+# No telemetry
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 
 
 # ======================

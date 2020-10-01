@@ -82,31 +82,22 @@ void kernel_trisolv(int n,
 
 }
 
+/* Retrieve problem size. */
+int n = N;
 
-int main(int argc, char** argv)
+/* Variable declaration. */
+POLYBENCH_2D_ARRAY_DECL_ONLY(L, DATA_TYPE, N, N, n, n);
+POLYBENCH_1D_ARRAY_DECL_ONLY(x, DATA_TYPE, N, n);
+POLYBENCH_1D_ARRAY_DECL_ONLY(b, DATA_TYPE, N, n);
+
+void benchmark(void)
 {
-  /* Retrieve problem size. */
-  int n = N;
-
-  /* Variable declaration/allocation. */
-  POLYBENCH_2D_ARRAY_DECL(L, DATA_TYPE, N, N, n, n);
-  POLYBENCH_1D_ARRAY_DECL(x, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_DECL(b, DATA_TYPE, N, n);
-
-
-  /* Initialize array(s). */
-  init_array (n, POLYBENCH_ARRAY(L), POLYBENCH_ARRAY(x), POLYBENCH_ARRAY(b));
-
-  /* Start timer. */
-  polybench_start_instruments;
-
   /* Run kernel. */
   kernel_trisolv (n, POLYBENCH_ARRAY(L), POLYBENCH_ARRAY(x), POLYBENCH_ARRAY(b));
+}
 
-  /* Stop and print timer. */
-  polybench_stop_instruments;
-  polybench_print_instruments;
-
+void finalize(int argc)
+{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(n, POLYBENCH_ARRAY(x)));
@@ -115,6 +106,19 @@ int main(int argc, char** argv)
   POLYBENCH_FREE_ARRAY(L);
   POLYBENCH_FREE_ARRAY(x);
   POLYBENCH_FREE_ARRAY(b);
+}
+
+
+int main(int argc, char** argv)
+{
+  /* Variable allocation. */
+  POLYBENCH_2D_ARRAY_ALLOC(L, DATA_TYPE, N, N, n, n);
+  POLYBENCH_1D_ARRAY_ALLOC(x, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_ALLOC(b, DATA_TYPE, N, n);
+
+
+  /* Initialize array(s). */
+  init_array (n, POLYBENCH_ARRAY(L), POLYBENCH_ARRAY(x), POLYBENCH_ARRAY(b));
 
   return 0;
 }

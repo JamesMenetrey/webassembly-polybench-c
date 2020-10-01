@@ -99,7 +99,7 @@ void CompileRecursively(DirectoryInfo directory)
 {
     foreach (var file in directory.EnumerateFiles())
     {
-        if (file.Name.EndsWith(".c") && !file.Name.EndsWith(".simplified.c"))
+        if (file.Name.EndsWith(".c"))
         {
             Compile(file);
         }
@@ -117,8 +117,6 @@ void Compile(FileInfo sourceFile)
         ? new FileInfo(sourceFile.FullName.Replace(".c", ".wasm"))
         : new FileInfo(Path.Combine(compilerOutputPath, sourceFile.Name.Replace(".c", ".wasm")));
     
-    sourceFile = SimplifyWasiCalls(sourceFile);
-    
     Console.Write($"compiling {sourceFile.Name}.. ");
     
     var p = Process.Start(compilerPath, new[]
@@ -131,7 +129,8 @@ void Compile(FileInfo sourceFile)
         $"-Wl,--allow-undefined-file={wasiDefinedSymbolsFile}",
         "-Wl,--no-threads,--strip-all",
         "-Wl,--export=main",
-        "-Wl,--export=entrypoint",
+        "-Wl,--export=benchmark",
+        "-Wl,--export=finalize",
         $"-I{sourceFile.DirectoryName}",
         $"-I{polyBenchUtilitiesDir}",
         $"-o{wasmFile.FullName}"
@@ -165,36 +164,6 @@ void CompileAheadOfTime(FileInfo wasmFile)
     {
         Environment.Exit(-1);
     }
-}
-
-// ---
-// Simplification logic.
-// ---
-FileInfo SimplifyWasiCalls(FileInfo sourceFile)
-{
-    Console.Write($"simplify {sourceFile.Name}.. ");
-    
-    var simplifiedFile = new FileInfo(sourceFile.FullName.Replace(".c", ".simplified.c"));
-    using var reader = sourceFile.OpenText();
-    using var writer = new StreamWriter(File.OpenWrite(simplifiedFile.FullName));
-
-    string? line;
-    while ((line = reader.ReadLine()) != null)
-    {
-        // Remove args_get and args_sizes_get WASI calls
-        var mainPattern = "int main(int argc, char** argv)";
-        if (line.Contains(mainPattern))
-        {
-            writer.WriteLine("int main(){ return 0; }");
-            line = line.Replace(mainPattern, "int entrypoint(int argc)");
-        }
-        
-        writer.WriteLine(line);
-    }
-    
-    Console.WriteLine("ok");
-
-    return simplifiedFile;
 }
 
 // ---

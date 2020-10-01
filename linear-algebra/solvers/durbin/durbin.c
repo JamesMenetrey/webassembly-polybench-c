@@ -94,32 +94,23 @@ void kernel_durbin(int n,
 
 }
 
+/* Retrieve problem size. */
+int n = N;
 
-int main(int argc, char** argv)
+/* Variable declaration. */
+POLYBENCH_1D_ARRAY_DECL_ONLY(r, DATA_TYPE, N, n);
+POLYBENCH_1D_ARRAY_DECL_ONLY(y, DATA_TYPE, N, n);
+
+void benchmark(void)
 {
-  /* Retrieve problem size. */
-  int n = N;
-
-  /* Variable declaration/allocation. */
-  POLYBENCH_1D_ARRAY_DECL(r, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_DECL(y, DATA_TYPE, N, n);
-
-
-  /* Initialize array(s). */
-  init_array (n, POLYBENCH_ARRAY(r));
-
-  /* Start timer. */
-  polybench_start_instruments;
-
   /* Run kernel. */
   kernel_durbin (n,
 		 POLYBENCH_ARRAY(r),
 		 POLYBENCH_ARRAY(y));
+}
 
-  /* Stop and print timer. */
-  polybench_stop_instruments;
-  polybench_print_instruments;
-
+void finalize(int argc)
+{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(n, POLYBENCH_ARRAY(y)));
@@ -127,6 +118,18 @@ int main(int argc, char** argv)
   /* Be clean. */
   POLYBENCH_FREE_ARRAY(r);
   POLYBENCH_FREE_ARRAY(y);
+}
+
+
+int main(int argc, char** argv)
+{
+  /* Variable allocation. */
+  POLYBENCH_1D_ARRAY_ALLOC(r, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_ALLOC(y, DATA_TYPE, N, n);
+
+
+  /* Initialize array(s). */
+  init_array (n, POLYBENCH_ARRAY(r));
 
   return 0;
 }

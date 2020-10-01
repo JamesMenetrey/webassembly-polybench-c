@@ -125,14 +125,17 @@
 
 /* Macros for array declaration. */
 # ifndef POLYBENCH_STACK_ARRAYS
-#  define POLYBENCH_1D_ARRAY_DECL(var, type, dim1, ddim1)		\
-  type POLYBENCH_1D_F(POLYBENCH_DECL_VAR(var), dim1, ddim1); \
+#  define POLYBENCH_1D_ARRAY_DECL_ONLY(var, type, dim1, ddim1)		\
+  type POLYBENCH_1D_F(POLYBENCH_DECL_VAR(var), dim1, ddim1);
+#  define POLYBENCH_1D_ARRAY_ALLOC(var, type, dim1, ddim1) \
   var = POLYBENCH_ALLOC_1D_ARRAY(POLYBENCH_C99_SELECT(dim1, ddim1), type);
-#  define POLYBENCH_2D_ARRAY_DECL(var, type, dim1, dim2, ddim1, ddim2)	\
-  type POLYBENCH_2D_F(POLYBENCH_DECL_VAR(var), dim1, dim2, ddim1, ddim2); \
+#  define POLYBENCH_2D_ARRAY_DECL_ONLY(var, type, dim1, dim2, ddim1, ddim2)	\
+  type POLYBENCH_2D_F(POLYBENCH_DECL_VAR(var), dim1, dim2, ddim1, ddim2);
+#  define POLYBENCH_2D_ARRAY_ALLOC(var, type, dim1, dim2, ddim1, ddim2)	\
   var = POLYBENCH_ALLOC_2D_ARRAY(POLYBENCH_C99_SELECT(dim1, ddim1), POLYBENCH_C99_SELECT(dim2, ddim2), type);
-#  define POLYBENCH_3D_ARRAY_DECL(var, type, dim1, dim2, dim3, ddim1, ddim2, ddim3) \
-  type POLYBENCH_3D_F(POLYBENCH_DECL_VAR(var), dim1, dim2, dim3, ddim1, ddim2, ddim3); \
+#  define POLYBENCH_3D_ARRAY_DECL_ONLY(var, type, dim1, dim2, dim3, ddim1, ddim2, ddim3) \
+  type POLYBENCH_3D_F(POLYBENCH_DECL_VAR(var), dim1, dim2, dim3, ddim1, ddim2, ddim3);
+#  define POLYBENCH_3D_ARRAY_ALLOC(var, type, dim1, dim2, dim3, ddim1, ddim2, ddim3) \
   var = POLYBENCH_ALLOC_3D_ARRAY(POLYBENCH_C99_SELECT(dim1, ddim1), POLYBENCH_C99_SELECT(dim2, ddim2), POLYBENCH_C99_SELECT(dim3, ddim3), type);
 #  define POLYBENCH_4D_ARRAY_DECL(var, type, dim1, dim2, dim3, dim4, ddim1, ddim2, ddim3, ddim4) \
   type POLYBENCH_4D_F(POLYBENCH_DECL_VAR(var), dim1, dim2, dim3, dim4, ddim1, ddim2, ddim3, ddim4); \
