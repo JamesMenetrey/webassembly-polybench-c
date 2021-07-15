@@ -17,6 +17,9 @@ ENV DOTNET_CLI_HOME="/tmp/"
 # No telemetry
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 
+# No startup logo
+ENV DOTNET_NOLOGO=true
+
 
 # ======================
 # WASM Compilation tools
