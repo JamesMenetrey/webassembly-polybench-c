@@ -131,12 +131,19 @@ POLYBENCH_1D_ARRAY_DECL_ONLY(_fict_,DATA_TYPE,TMAX,tmax);
 
 void benchmark(void)
 {
+  /* Start timer. */
+  polybench_start_instruments;
+
   /* Run kernel. */
   kernel_fdtd_2d (tmax, nx, ny,
 		  POLYBENCH_ARRAY(ex),
 		  POLYBENCH_ARRAY(ey),
 		  POLYBENCH_ARRAY(hz),
 		  POLYBENCH_ARRAY(_fict_));
+
+  /* Stop and print timer. */
+  polybench_stop_instruments;
+  polybench_print_instruments;
 }
 
 void finalize(int argc)
@@ -169,6 +176,11 @@ int main(int argc, char** argv)
 	      POLYBENCH_ARRAY(ey),
 	      POLYBENCH_ARRAY(hz),
 	      POLYBENCH_ARRAY(_fict_));
+
+#ifdef CALL_BENCHMARK_IN_MAIN
+  benchmark();
+  finalize(argc);
+#endif
 
   return 0;
 }

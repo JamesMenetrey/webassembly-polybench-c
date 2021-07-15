@@ -206,9 +206,24 @@ extern const unsigned int polybench_papi_eventlist[];
 #  define polybench_print_instruments polybench_papi_print();
 # endif
 
+#if defined(POLYBENCH_WASI_TIME)
+// Inspired from sys/time.h
+# define timespec_diff(a, b, result)                  \
+  do {                                                \
+    (result)->tv_sec = (a)->tv_sec - (b)->tv_sec;     \
+    (result)->tv_nsec = (a)->tv_nsec - (b)->tv_nsec;  \
+    if ((result)->tv_nsec < 0) {                      \
+      --(result)->tv_sec;                             \
+      (result)->tv_nsec += 1000000000;                \
+    }                                                 \
+  } while (0)
+
+#define timespec_to_micro(t) \
+    t.tv_sec * 1000 * 1000 + t.tv_nsec / 1000
+#endif
 
 /* Timing support. */
-# if defined(POLYBENCH_TIME) || defined(POLYBENCH_GFLOPS)
+# if defined(POLYBENCH_TIME) || defined(POLYBENCH_GFLOPS) || defined(POLYBENCH_WASI_TIME)
 #  undef polybench_start_instruments
 #  undef polybench_stop_instruments
 #  undef polybench_print_instruments

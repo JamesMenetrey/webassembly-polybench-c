@@ -105,8 +105,15 @@ POLYBENCH_3D_ARRAY_DECL_ONLY(B, DATA_TYPE, N, N, N, n, n, n);
 
 void benchmark(void)
 {
+  /* Start timer. */
+  polybench_start_instruments;
+
   /* Run kernel. */
   kernel_heat_3d (tsteps, n, POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B));
+
+  /* Stop and print timer. */
+  polybench_stop_instruments;
+  polybench_print_instruments;
 }
 
 void finalize(int argc)
@@ -129,6 +136,11 @@ int main(int argc, char** argv)
 
   /* Initialize array(s). */
   init_array (n, POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B));
+
+#ifdef CALL_BENCHMARK_IN_MAIN
+  benchmark();
+  finalize(argc);
+#endif
 
   return 0;
 }

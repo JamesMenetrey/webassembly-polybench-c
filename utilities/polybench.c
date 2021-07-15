@@ -78,6 +78,8 @@ static size_t polybench_inter_array_padding_sz = 0;
 double polybench_t_start, polybench_t_end;
 /* Timer code (RDTSC). */
 unsigned long long int polybench_c_start, polybench_c_end;
+/* Timer (WASI). */
+static struct timespec polybench_ts_start, polybench_ts_end;
 
 static
 double rtclock()
@@ -352,7 +354,8 @@ void polybench_papi_print()
 
 void polybench_prepare_instruments()
 {
-#ifndef POLYBENCH_NO_FLUSH_CACHE
+#ifdef POLYBENCH_WASI_TIME
+#elif !defined(POLYBENCH_NO_FLUSH_CACHE)
   polybench_flush_cache ();
 #endif
 #ifdef POLYBENCH_LINUX_FIFO_SCHEDULER
@@ -364,7 +367,9 @@ void polybench_prepare_instruments()
 void polybench_timer_start()
 {
   polybench_prepare_instruments ();
-#ifndef POLYBENCH_CYCLE_ACCURATE_TIMER
+#ifdef POLYBENCH_WASI_TIME
+  clock_gettime(CLOCK_MONOTONIC, &polybench_ts_start);
+#elif !defined(POLYBENCH_CYCLE_ACCURATE_TIMER)
   polybench_t_start = rtclock ();
 #else
   polybench_c_start = rdtsc ();
@@ -374,7 +379,9 @@ void polybench_timer_start()
 
 void polybench_timer_stop()
 {
-#ifndef POLYBENCH_CYCLE_ACCURATE_TIMER
+#ifdef POLYBENCH_WASI_TIME
+  clock_gettime(CLOCK_MONOTONIC, &polybench_ts_end);
+#elif !defined(POLYBENCH_CYCLE_ACCURATE_TIMER)
   polybench_t_end = rtclock ();
 #else
   polybench_c_end = rdtsc ();
@@ -387,7 +394,11 @@ void polybench_timer_stop()
 
 void polybench_timer_print()
 {
-#ifdef POLYBENCH_GFLOPS
+#ifdef POLYBENCH_WASI_TIME
+  struct timespec polybench_ts_delta;
+  timespec_diff(&polybench_ts_end, &polybench_ts_start, &polybench_ts_delta);
+  printf("%lld\n", timespec_to_micro(polybench_ts_delta));
+#elif defined(POLYBENCH_GFLOPS)
       if  (polybench_program_total_flops == 0)
 	{
 	  printf ("[PolyBench][WARNING] Program flops not defined, use polybench_set_program_flops(value)\n");

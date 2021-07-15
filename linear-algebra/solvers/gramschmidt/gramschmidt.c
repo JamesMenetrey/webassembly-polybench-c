@@ -118,11 +118,18 @@ POLYBENCH_2D_ARRAY_DECL_ONLY(Q,DATA_TYPE,M,N,m,n);
 
 void benchmark(void)
 {
+  /* Start timer. */
+  polybench_start_instruments;
+
   /* Run kernel. */
   kernel_gramschmidt (m, n,
 		      POLYBENCH_ARRAY(A),
 		      POLYBENCH_ARRAY(R),
 		      POLYBENCH_ARRAY(Q));
+
+  /* Stop and print timer. */
+  polybench_stop_instruments;
+  polybench_print_instruments;
 }
 
 void finalize(int argc)
@@ -150,6 +157,11 @@ int main(int argc, char** argv)
 	      POLYBENCH_ARRAY(A),
 	      POLYBENCH_ARRAY(R),
 	      POLYBENCH_ARRAY(Q));
+
+#ifdef CALL_BENCHMARK_IN_MAIN
+  benchmark();
+  finalize(argc);
+#endif
 
   return 0;
 }

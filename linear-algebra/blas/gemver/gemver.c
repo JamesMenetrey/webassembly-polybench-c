@@ -133,6 +133,9 @@ POLYBENCH_1D_ARRAY_DECL_ONLY(z, DATA_TYPE, N, n);
 
 void benchmark(void)
 {
+  /* Start timer. */
+  polybench_start_instruments;
+
   /* Run kernel. */
   kernel_gemver (n, alpha, beta,
 		 POLYBENCH_ARRAY(A),
@@ -144,6 +147,10 @@ void benchmark(void)
 		 POLYBENCH_ARRAY(x),
 		 POLYBENCH_ARRAY(y),
 		 POLYBENCH_ARRAY(z));
+
+  /* Stop and print timer. */
+  polybench_stop_instruments;
+  polybench_print_instruments;
 }
 
 void finalize(int argc)
@@ -189,6 +196,11 @@ int main(int argc, char** argv)
 	      POLYBENCH_ARRAY(x),
 	      POLYBENCH_ARRAY(y),
 	      POLYBENCH_ARRAY(z));
+
+#ifdef CALL_BENCHMARK_IN_MAIN
+  benchmark();
+  finalize(argc);
+#endif
 
   return 0;
 }

@@ -96,11 +96,18 @@ POLYBENCH_2D_ARRAY_DECL_ONLY(C4,DATA_TYPE,NP,NP,np,np);
 
 void benchmark(void)
 {
+  /* Start timer. */
+  polybench_start_instruments;
+
   /* Run kernel. */
   kernel_doitgen (nr, nq, np,
 		  POLYBENCH_ARRAY(A),
 		  POLYBENCH_ARRAY(C4),
 		  POLYBENCH_ARRAY(sum));
+
+  /* Stop and print timer. */
+  polybench_stop_instruments;
+  polybench_print_instruments;
 }
 
 void finalize(int argc)
@@ -127,6 +134,11 @@ int main(int argc, char** argv)
   init_array (nr, nq, np,
 	      POLYBENCH_ARRAY(A),
 	      POLYBENCH_ARRAY(C4));
+
+#ifdef CALL_BENCHMARK_IN_MAIN
+  benchmark();
+  finalize(argc);
+#endif
 
   return 0;
 }

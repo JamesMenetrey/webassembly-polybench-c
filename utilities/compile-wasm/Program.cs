@@ -35,8 +35,8 @@ while (!File.Exists(Path.Combine(polyBenchDir!.FullName, topLevelFileName)))
 void PrintUsage()
 {
     Console.WriteLine("dotnet run -- [--output /path/to/output] [--sgx] [--aot] [--display-mem-alloc] "
-                      + "[--wasi-sdk /absolute/path/to/wasi-sdk] [--wamr /absolute/path/to/wamr] "
-                      + "[--dataset-size LARGE_DATASET]");
+                      + "[--call-benchmark-in-main] [--display-time] [--wasi-sdk /absolute/path/to/wasi-sdk] " 
+                      + "[--wamr /absolute/path/to/wamr] [--dataset-size LARGE_DATASET]");
     Environment.Exit(-1);
 }
 
@@ -44,6 +44,8 @@ string? compilerOutputPath = null;
 bool isCompiledForSgx = false;
 bool isAoTCompiled = false;
 bool isMemAllocDisplayed = false;
+bool isBenchmarkCalledInMain = false;
+bool isTimeDisplayed = false;
 string wasiSdkDir = "/opt/wasi-sdk";
 string wamrDir = "/opt/wamr-sdk";
 string datasetSize = "LARGE_DATASET";
@@ -70,6 +72,12 @@ for (var i = 0; i < args.Length; i++)
         case "--display-mem-alloc":
             isMemAllocDisplayed = true;
             break;
+        case "--call-benchmark-in-main":
+            isBenchmarkCalledInMain = true;
+            break;
+        case "--display-time":
+            isTimeDisplayed = true;
+            break;
         case "--wasi-sdk":
             wasiSdkDir = args[++i];
             break;
@@ -80,6 +88,7 @@ for (var i = 0; i < args.Length; i++)
             datasetSize = args[++i];
             break;
         default:
+            Console.WriteLine($"Error: argument unknown '{args[i]}'");
             PrintUsage();
             break;
     }
@@ -148,6 +157,8 @@ void Compile(FileInfo sourceFile)
     };
     
     if (isMemAllocDisplayed) arguments.Add("-DDISPLAY_MEM_ALLOC");
+    if (isBenchmarkCalledInMain) arguments.Add("-DCALL_BENCHMARK_IN_MAIN");
+    if (isTimeDisplayed) arguments.Add("-DPOLYBENCH_WASI_TIME");
     
     var p = Process.Start(compilerPath, arguments);
 

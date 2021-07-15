@@ -115,8 +115,15 @@ POLYBENCH_2D_ARRAY_DECL_ONLY(A, DATA_TYPE, N, N, n, n);
 
 void benchmark(void)
 {
+  /* Start timer. */
+  polybench_start_instruments;
+
   /* Run kernel. */
   kernel_cholesky (n, POLYBENCH_ARRAY(A));
+
+  /* Stop and print timer. */
+  polybench_stop_instruments;
+  polybench_print_instruments;
 }
 
 void finalize(int argc)
@@ -137,6 +144,11 @@ int main(int argc, char** argv)
 
   /* Initialize array(s). */
   init_array (n, POLYBENCH_ARRAY(A));
+
+#ifdef CALL_BENCHMARK_IN_MAIN
+  benchmark();
+  finalize(argc);
+#endif
 
   return 0;
 }

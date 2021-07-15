@@ -110,12 +110,19 @@ POLYBENCH_2D_ARRAY_DECL_ONLY(B,DATA_TYPE,N,M,n,m);
 
 void benchmark(void)
 {
+  /* Start timer. */
+  polybench_start_instruments;
+
   /* Run kernel. */
   kernel_syr2k (n, m,
 		alpha, beta,
 		POLYBENCH_ARRAY(C),
 		POLYBENCH_ARRAY(A),
 		POLYBENCH_ARRAY(B));
+
+  /* Stop and print timer. */
+  polybench_stop_instruments;
+  polybench_print_instruments;
 }
 
 void finalize(int argc)
@@ -143,6 +150,11 @@ int main(int argc, char** argv)
 	      POLYBENCH_ARRAY(C),
 	      POLYBENCH_ARRAY(A),
 	      POLYBENCH_ARRAY(B));
+
+#ifdef CALL_BENCHMARK_IN_MAIN
+  benchmark();
+  finalize(argc);
+#endif
 
   return 0;
 }
