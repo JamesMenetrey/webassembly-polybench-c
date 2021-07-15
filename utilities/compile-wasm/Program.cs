@@ -34,15 +34,19 @@ while (!File.Exists(Path.Combine(polyBenchDir!.FullName, topLevelFileName)))
 // ---
 void PrintUsage()
 {
-    Console.WriteLine("dotnet run -- [--output /path/to/output] [--sgx] [--aot] [--wasi-sdk /absolute/path/to/wasi-sdk] [--wamr /absolute/path/to/wamr]");
+    Console.WriteLine("dotnet run -- [--output /path/to/output] [--sgx] [--aot] [--display-mem-alloc] "
+                      + "[--wasi-sdk /absolute/path/to/wasi-sdk] [--wamr /absolute/path/to/wamr] "
+                      + "[--dataset-size LARGE_DATASET]");
     Environment.Exit(-1);
 }
 
 string? compilerOutputPath = null;
 bool isCompiledForSgx = false;
 bool isAoTCompiled = false;
+bool isMemAllocDisplayed = false;
 string wasiSdkDir = "/opt/wasi-sdk";
 string wamrDir = "/opt/wamr-sdk";
+string datasetSize = "LARGE_DATASET";
 
 for (var i = 0; i < args.Length; i++)
 {
@@ -63,11 +67,17 @@ for (var i = 0; i < args.Length; i++)
         case "--aot":
             isAoTCompiled = true;
             break;
+        case "--display-mem-alloc":
+            isMemAllocDisplayed = true;
+            break;
         case "--wasi-sdk":
             wasiSdkDir = args[++i];
             break;
         case "--wamr":
             wamrDir = args[++i];
+            break;
+        case "--dataset-size":
+            datasetSize = args[++i];
             break;
         default:
             PrintUsage();
@@ -119,8 +129,8 @@ void Compile(FileInfo sourceFile)
         : new FileInfo(Path.Combine(compilerOutputPath, sourceFile.Name.Replace(".c", ".wasm")));
     
     Console.Write($"compiling {sourceFile.Name}.. ");
-    
-    var p = Process.Start(compilerPath, new[]
+
+    var arguments = new List<string>
     {
         sourceFile.FullName,
         Path.Combine(polyBenchUtilitiesDir, "polybench.c"),
@@ -131,10 +141,15 @@ void Compile(FileInfo sourceFile)
         "-Wl,--strip-all",
         "-Wl,--export=benchmark",
         "-Wl,--export=finalize",
+        $"-D{datasetSize}",
         $"-I{sourceFile.DirectoryName}",
         $"-I{polyBenchUtilitiesDir}",
         $"-o{wasmFile.FullName}"
-    });
+    };
+    
+    if (isMemAllocDisplayed) arguments.Add("-DDISPLAY_MEM_ALLOC");
+    
+    var p = Process.Start(compilerPath, arguments);
 
     p.Start();
     p.WaitForExit(); 

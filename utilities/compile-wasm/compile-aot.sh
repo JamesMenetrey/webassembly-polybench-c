@@ -10,4 +10,5 @@ docker run \
     -v /opt/wamr-sdk:/opt/wamr-sdk \
     -u $(id -u ${USER}):$(id -g ${USER}) \
     polybenchc-wasm-compiler \
-    --aot
+    --aot \
+    "$@"

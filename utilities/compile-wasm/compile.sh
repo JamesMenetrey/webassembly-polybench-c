@@ -8,4 +8,5 @@ docker run \
     --rm \
     -v $ROOT_DIR/../../:/polybenchc \
     -u $(id -u ${USER}):$(id -g ${USER}) \
-    polybenchc-wasm-compiler
+    polybenchc-wasm-compiler \
+    "$@"

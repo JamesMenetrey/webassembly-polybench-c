@@ -520,10 +520,15 @@ xmalloc(size_t alloc_sz)
   /* By default, post-pad the arrays. Safe behavior, but likely useless. */
   polybench_inter_array_padding_sz += POLYBENCH_INTER_ARRAY_PADDING_FACTOR;
   size_t padded_sz = alloc_sz + polybench_inter_array_padding_sz;
+
+#ifdef DISPLAY_MEM_ALLOC
+  printf("[PolyBench] xmalloc: attempt to allocate %lu bytes (%f MB)\n", padded_sz, padded_sz / 1024.0 / 1024.0);
+#endif
+
   int err = posix_memalign (&ret, 4096, padded_sz);
   if (! ret || err)
     {
-      fprintf (stderr, "[PolyBench] posix_memalign: cannot allocate memory");
+      fprintf (stderr, "[PolyBench] posix_memalign: cannot allocate memory\n");
       exit (1);
     }
   /* Safeguard: this is invoked only if polybench.c has been compiled
