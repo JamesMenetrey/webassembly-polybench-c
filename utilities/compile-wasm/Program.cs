@@ -46,6 +46,10 @@ bool isAoTCompiled = false;
 bool isMemAllocDisplayed = false;
 bool isBenchmarkCalledInMain = false;
 bool isTimeDisplayed = false;
+bool isAotTargetSpecified = false;
+int? boundsChecks = null;
+int? sizeLevel = null;
+string? aotTarget = null;
 string wasiSdkDir = "/opt/wasi-sdk";
 string wamrDir = "/opt/wamr-sdk";
 string datasetSize = "LARGE_DATASET";
@@ -68,6 +72,16 @@ for (var i = 0; i < args.Length; i++)
             break;
         case "--aot":
             isAoTCompiled = true;
+            break;
+        case "--aot-target":
+            isAotTargetSpecified = true;
+            aotTarget = args[++i];
+            break;
+        case "--aot-bounds-checks":
+            boundsChecks = int.Parse(args[++i]);
+            break;
+        case "--aot-size-level":
+            sizeLevel = int.Parse(args[++i]);
             break;
         case "--display-mem-alloc":
             isMemAllocDisplayed = true;
@@ -180,7 +194,11 @@ void Compile(FileInfo sourceFile)
 void CompileAheadOfTime(FileInfo wasmFile)
 {
     var aotPath = wasmFile.FullName.Replace(".wasm", ".aot");
-    var arguments = $"{(isCompiledForSgx ? "-sgx " : "")} -o {aotPath} {wasmFile.FullName}";
+    var sgxArg = isCompiledForSgx ? "-sgx " : string.Empty;
+    var aotTargetArg = isAotTargetSpecified ? "--target=" + aotTarget : string.Empty;
+    var boundsChecksArg = boundsChecks != null ? "--bounds-checks=" + boundsChecks : string.Empty;
+    var sizeLevelArg = sizeLevel != null ? "--size-level=" + sizeLevel : string.Empty;
+    var arguments = $"{sgxArg} {aotTargetArg} {boundsChecksArg} {sizeLevelArg} -o {aotPath} {wasmFile.FullName}";
     var p = Process.Start(wamrCompiler, arguments);
 
     p!.Start();
