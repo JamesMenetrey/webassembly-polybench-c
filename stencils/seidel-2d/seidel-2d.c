@@ -75,15 +75,20 @@ void kernel_seidel_2d(int tsteps,
 
 }
 
-/* Retrieve problem size. */
-int n = N;
-int tsteps = TSTEPS;
 
-/* Variable declaration. */
-POLYBENCH_2D_ARRAY_DECL_ONLY(A, DATA_TYPE, N, N, n, n);
-
-void benchmark(void)
+int main(int argc, char** argv)
 {
+  /* Retrieve problem size. */
+  int n = N;
+  int tsteps = TSTEPS;
+
+  /* Variable declaration/allocation. */
+  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, N, N, n, n);
+
+
+  /* Initialize array(s). */
+  init_array (n, POLYBENCH_ARRAY(A));
+
   /* Start timer. */
   polybench_start_instruments;
 
@@ -93,31 +98,13 @@ void benchmark(void)
   /* Stop and print timer. */
   polybench_stop_instruments;
   polybench_print_instruments;
-}
 
-void finalize(int argc)
-{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(n, POLYBENCH_ARRAY(A)));
 
   /* Be clean. */
   POLYBENCH_FREE_ARRAY(A);
-}
-
-
-int main(int argc, char** argv)
-{
-  /* Variable allocation. */
-  POLYBENCH_2D_ARRAY_ALLOC(A, DATA_TYPE, N, N, n, n);
-
-  /* Initialize array(s). */
-  init_array (n, POLYBENCH_ARRAY(A));  
-
-#ifdef CALL_BENCHMARK_IN_MAIN
-  benchmark();
-  finalize(argc);
-#endif
 
   return 0;
 }

@@ -21,8 +21,6 @@
 #include "ludcmp.h"
 
 
-POLYBENCH_2D_ARRAY_DECL_ONLY(B, DATA_TYPE, N, N, n, n);
-
 /* Array initialization. */
 static
 void init_array (int n,
@@ -54,7 +52,7 @@ void init_array (int n,
   /* Make the matrix positive semi-definite. */
   /* not necessary for LU, but using same code as cholesky */
   int r,s,t;
-  POLYBENCH_2D_ARRAY_ALLOC(B, DATA_TYPE, N, N, n, n);
+  POLYBENCH_2D_ARRAY_DECL(B, DATA_TYPE, N, N, n, n);
   for (r = 0; r < n; ++r)
     for (s = 0; s < n; ++s)
       (POLYBENCH_ARRAY(B))[r][s] = 0;
@@ -138,17 +136,26 @@ void kernel_ludcmp(int n,
 
 }
 
-/* Retrieve problem size. */
-int n = N;
 
-/* Variable declaration/allocation. */
-POLYBENCH_2D_ARRAY_DECL_ONLY(A, DATA_TYPE, N, N, n, n);
-POLYBENCH_1D_ARRAY_DECL_ONLY(b, DATA_TYPE, N, n);
-POLYBENCH_1D_ARRAY_DECL_ONLY(x, DATA_TYPE, N, n);
-POLYBENCH_1D_ARRAY_DECL_ONLY(y, DATA_TYPE, N, n);
-
-void benchmark(void)
+int main(int argc, char** argv)
 {
+  /* Retrieve problem size. */
+  int n = N;
+
+  /* Variable declaration/allocation. */
+  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, N, N, n, n);
+  POLYBENCH_1D_ARRAY_DECL(b, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_DECL(x, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_DECL(y, DATA_TYPE, N, n);
+
+
+  /* Initialize array(s). */
+  init_array (n,
+	      POLYBENCH_ARRAY(A),
+	      POLYBENCH_ARRAY(b),
+	      POLYBENCH_ARRAY(x),
+	      POLYBENCH_ARRAY(y));
+
   /* Start timer. */
   polybench_start_instruments;
 
@@ -162,10 +169,7 @@ void benchmark(void)
   /* Stop and print timer. */
   polybench_stop_instruments;
   polybench_print_instruments;
-}
 
-void finalize(int argc)
-{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(n, POLYBENCH_ARRAY(x)));
@@ -175,29 +179,6 @@ void finalize(int argc)
   POLYBENCH_FREE_ARRAY(b);
   POLYBENCH_FREE_ARRAY(x);
   POLYBENCH_FREE_ARRAY(y);
-}
-
-
-int main(int argc, char** argv)
-{
-  /* Variable declaration/allocation. */
-  POLYBENCH_2D_ARRAY_ALLOC(A, DATA_TYPE, N, N, n, n);
-  POLYBENCH_1D_ARRAY_ALLOC(b, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_ALLOC(x, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_ALLOC(y, DATA_TYPE, N, n);
-
-
-  /* Initialize array(s). */
-  init_array (n,
-	      POLYBENCH_ARRAY(A),
-	      POLYBENCH_ARRAY(b),
-	      POLYBENCH_ARRAY(x),
-	      POLYBENCH_ARRAY(y));
-
-#ifdef CALL_BENCHMARK_IN_MAIN
-  benchmark();
-  finalize(argc);
-#endif
 
   return 0;
 }

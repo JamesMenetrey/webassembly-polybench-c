@@ -84,18 +84,24 @@ void kernel_doitgen(int nr, int nq, int np,
 
 }
 
-/* Retrieve problem size. */
-int nr = NR;
-int nq = NQ;
-int np = NP;
 
-/* Variable declaration. */
-POLYBENCH_3D_ARRAY_DECL_ONLY(A,DATA_TYPE,NR,NQ,NP,nr,nq,np);
-POLYBENCH_1D_ARRAY_DECL_ONLY(sum,DATA_TYPE,NP,np);
-POLYBENCH_2D_ARRAY_DECL_ONLY(C4,DATA_TYPE,NP,NP,np,np);
-
-void benchmark(void)
+int main(int argc, char** argv)
 {
+  /* Retrieve problem size. */
+  int nr = NR;
+  int nq = NQ;
+  int np = NP;
+
+  /* Variable declaration/allocation. */
+  POLYBENCH_3D_ARRAY_DECL(A,DATA_TYPE,NR,NQ,NP,nr,nq,np);
+  POLYBENCH_1D_ARRAY_DECL(sum,DATA_TYPE,NP,np);
+  POLYBENCH_2D_ARRAY_DECL(C4,DATA_TYPE,NP,NP,np,np);
+
+  /* Initialize array(s). */
+  init_array (nr, nq, np,
+	      POLYBENCH_ARRAY(A),
+	      POLYBENCH_ARRAY(C4));
+
   /* Start timer. */
   polybench_start_instruments;
 
@@ -108,10 +114,7 @@ void benchmark(void)
   /* Stop and print timer. */
   polybench_stop_instruments;
   polybench_print_instruments;
-}
 
-void finalize(int argc)
-{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(nr, nq, np,  POLYBENCH_ARRAY(A)));
@@ -120,25 +123,6 @@ void finalize(int argc)
   POLYBENCH_FREE_ARRAY(A);
   POLYBENCH_FREE_ARRAY(sum);
   POLYBENCH_FREE_ARRAY(C4);
-}
-
-
-int main(int argc, char** argv)
-{
-  /* Variable allocation. */
-  POLYBENCH_3D_ARRAY_ALLOC(A,DATA_TYPE,NR,NQ,NP,nr,nq,np);
-  POLYBENCH_1D_ARRAY_ALLOC(sum,DATA_TYPE,NP,np);
-  POLYBENCH_2D_ARRAY_ALLOC(C4,DATA_TYPE,NP,NP,np,np);
-
-  /* Initialize array(s). */
-  init_array (nr, nq, np,
-	      POLYBENCH_ARRAY(A),
-	      POLYBENCH_ARRAY(C4));
-
-#ifdef CALL_BENCHMARK_IN_MAIN
-  benchmark();
-  finalize(argc);
-#endif
 
   return 0;
 }

@@ -127,18 +127,23 @@ void kernel_adi(int tsteps, int n,
 #pragma endscop
 }
 
-/* Retrieve problem size. */
-int n = N;
-int tsteps = TSTEPS;
 
-/* Variable declaration. */
-POLYBENCH_2D_ARRAY_DECL_ONLY(u, DATA_TYPE, N, N, n, n);
-POLYBENCH_2D_ARRAY_DECL_ONLY(v, DATA_TYPE, N, N, n, n);
-POLYBENCH_2D_ARRAY_DECL_ONLY(p, DATA_TYPE, N, N, n, n);
-POLYBENCH_2D_ARRAY_DECL_ONLY(q, DATA_TYPE, N, N, n, n);
-
-void benchmark(void)
+int main(int argc, char** argv)
 {
+  /* Retrieve problem size. */
+  int n = N;
+  int tsteps = TSTEPS;
+
+  /* Variable declaration/allocation. */
+  POLYBENCH_2D_ARRAY_DECL(u, DATA_TYPE, N, N, n, n);
+  POLYBENCH_2D_ARRAY_DECL(v, DATA_TYPE, N, N, n, n);
+  POLYBENCH_2D_ARRAY_DECL(p, DATA_TYPE, N, N, n, n);
+  POLYBENCH_2D_ARRAY_DECL(q, DATA_TYPE, N, N, n, n);
+
+
+  /* Initialize array(s). */
+  init_array (n, POLYBENCH_ARRAY(u));
+
   /* Start timer. */
   polybench_start_instruments;
 
@@ -148,10 +153,7 @@ void benchmark(void)
   /* Stop and print timer. */
   polybench_stop_instruments;
   polybench_print_instruments;
-}
 
-void finalize(int argc)
-{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(n, POLYBENCH_ARRAY(u)));
@@ -161,24 +163,6 @@ void finalize(int argc)
   POLYBENCH_FREE_ARRAY(v);
   POLYBENCH_FREE_ARRAY(p);
   POLYBENCH_FREE_ARRAY(q);
-}
-
-
-int main(int argc, char** argv)
-{
-  /* Variable allocation. */
-  POLYBENCH_2D_ARRAY_ALLOC(u, DATA_TYPE, N, N, n, n);
-  POLYBENCH_2D_ARRAY_ALLOC(v, DATA_TYPE, N, N, n, n);
-  POLYBENCH_2D_ARRAY_ALLOC(p, DATA_TYPE, N, N, n, n);
-  POLYBENCH_2D_ARRAY_ALLOC(q, DATA_TYPE, N, N, n, n);
-
-  /* Initialize array(s). */
-  init_array (n, POLYBENCH_ARRAY(u));
-
-#ifdef CALL_BENCHMARK_IN_MAIN
-  benchmark();
-  finalize(argc);
-#endif
 
   return 0;
 }

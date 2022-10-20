@@ -94,22 +94,30 @@ void kernel_bicg(int m, int n,
 #pragma endscop
 
 }
-/* Retrieve problem size. */
-int n = N;
-int m = M;
 
-/* Variable declaration. */
-POLYBENCH_2D_ARRAY_DECL_ONLY(A, DATA_TYPE, N, M, n, m);
-POLYBENCH_1D_ARRAY_DECL_ONLY(s, DATA_TYPE, M, m);
-POLYBENCH_1D_ARRAY_DECL_ONLY(q, DATA_TYPE, N, n);
-POLYBENCH_1D_ARRAY_DECL_ONLY(p, DATA_TYPE, M, m);
-POLYBENCH_1D_ARRAY_DECL_ONLY(r, DATA_TYPE, N, n);
 
-void benchmark(void)
+int main(int argc, char** argv)
 {
+  /* Retrieve problem size. */
+  int n = N;
+  int m = M;
+
+  /* Variable declaration/allocation. */
+  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, N, M, n, m);
+  POLYBENCH_1D_ARRAY_DECL(s, DATA_TYPE, M, m);
+  POLYBENCH_1D_ARRAY_DECL(q, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_DECL(p, DATA_TYPE, M, m);
+  POLYBENCH_1D_ARRAY_DECL(r, DATA_TYPE, N, n);
+
+  /* Initialize array(s). */
+  init_array (m, n,
+	      POLYBENCH_ARRAY(A),
+	      POLYBENCH_ARRAY(r),
+	      POLYBENCH_ARRAY(p));
+
   /* Start timer. */
   polybench_start_instruments;
-  
+
   /* Run kernel. */
   kernel_bicg (m, n,
 	       POLYBENCH_ARRAY(A),
@@ -121,10 +129,7 @@ void benchmark(void)
   /* Stop and print timer. */
   polybench_stop_instruments;
   polybench_print_instruments;
-}
 
-void finalize(int argc)
-{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(m, n, POLYBENCH_ARRAY(s), POLYBENCH_ARRAY(q)));
@@ -135,28 +140,6 @@ void finalize(int argc)
   POLYBENCH_FREE_ARRAY(q);
   POLYBENCH_FREE_ARRAY(p);
   POLYBENCH_FREE_ARRAY(r);
-}
-
-
-int main(int argc, char** argv)
-{
-  /* Variable allocation. */
-  POLYBENCH_2D_ARRAY_ALLOC(A, DATA_TYPE, N, M, n, m);
-  POLYBENCH_1D_ARRAY_ALLOC(s, DATA_TYPE, M, m);
-  POLYBENCH_1D_ARRAY_ALLOC(q, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_ALLOC(p, DATA_TYPE, M, m);
-  POLYBENCH_1D_ARRAY_ALLOC(r, DATA_TYPE, N, n);
-
-  /* Initialize array(s). */
-  init_array (m, n,
-	      POLYBENCH_ARRAY(A),
-	      POLYBENCH_ARRAY(r),
-	      POLYBENCH_ARRAY(p));
-
-#ifdef CALL_BENCHMARK_IN_MAIN
-  benchmark();
-  finalize(argc);
-#endif
 
   return 0;
 }

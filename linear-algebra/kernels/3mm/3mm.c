@@ -109,24 +109,32 @@ void kernel_3mm(int ni, int nj, int nk, int nl, int nm,
 
 }
 
-/* Retrieve problem size. */
-int ni = NI;
-int nj = NJ;
-int nk = NK;
-int nl = NL;
-int nm = NM;
 
-/* Variable declaration/allocation. */
-POLYBENCH_2D_ARRAY_DECL_ONLY(E, DATA_TYPE, NI, NJ, ni, nj);
-POLYBENCH_2D_ARRAY_DECL_ONLY(A, DATA_TYPE, NI, NK, ni, nk);
-POLYBENCH_2D_ARRAY_DECL_ONLY(B, DATA_TYPE, NK, NJ, nk, nj);
-POLYBENCH_2D_ARRAY_DECL_ONLY(F, DATA_TYPE, NJ, NL, nj, nl);
-POLYBENCH_2D_ARRAY_DECL_ONLY(C, DATA_TYPE, NJ, NM, nj, nm);
-POLYBENCH_2D_ARRAY_DECL_ONLY(D, DATA_TYPE, NM, NL, nm, nl);
-POLYBENCH_2D_ARRAY_DECL_ONLY(G, DATA_TYPE, NI, NL, ni, nl);
-
-void benchmark(void)
+int main(int argc, char** argv)
 {
+  /* Retrieve problem size. */
+  int ni = NI;
+  int nj = NJ;
+  int nk = NK;
+  int nl = NL;
+  int nm = NM;
+
+  /* Variable declaration/allocation. */
+  POLYBENCH_2D_ARRAY_DECL(E, DATA_TYPE, NI, NJ, ni, nj);
+  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, NI, NK, ni, nk);
+  POLYBENCH_2D_ARRAY_DECL(B, DATA_TYPE, NK, NJ, nk, nj);
+  POLYBENCH_2D_ARRAY_DECL(F, DATA_TYPE, NJ, NL, nj, nl);
+  POLYBENCH_2D_ARRAY_DECL(C, DATA_TYPE, NJ, NM, nj, nm);
+  POLYBENCH_2D_ARRAY_DECL(D, DATA_TYPE, NM, NL, nm, nl);
+  POLYBENCH_2D_ARRAY_DECL(G, DATA_TYPE, NI, NL, ni, nl);
+
+  /* Initialize array(s). */
+  init_array (ni, nj, nk, nl, nm,
+	      POLYBENCH_ARRAY(A),
+	      POLYBENCH_ARRAY(B),
+	      POLYBENCH_ARRAY(C),
+	      POLYBENCH_ARRAY(D));
+
   /* Start timer. */
   polybench_start_instruments;
 
@@ -143,10 +151,7 @@ void benchmark(void)
   /* Stop and print timer. */
   polybench_stop_instruments;
   polybench_print_instruments;
-}
 
-void finalize(int argc)
-{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(ni, nl,  POLYBENCH_ARRAY(G)));
@@ -159,31 +164,6 @@ void finalize(int argc)
   POLYBENCH_FREE_ARRAY(C);
   POLYBENCH_FREE_ARRAY(D);
   POLYBENCH_FREE_ARRAY(G);
-}
-
-
-int main(int argc, char** argv)
-{
-  /* Variable declaration/allocation. */
-  POLYBENCH_2D_ARRAY_ALLOC(E, DATA_TYPE, NI, NJ, ni, nj);
-  POLYBENCH_2D_ARRAY_ALLOC(A, DATA_TYPE, NI, NK, ni, nk);
-  POLYBENCH_2D_ARRAY_ALLOC(B, DATA_TYPE, NK, NJ, nk, nj);
-  POLYBENCH_2D_ARRAY_ALLOC(F, DATA_TYPE, NJ, NL, nj, nl);
-  POLYBENCH_2D_ARRAY_ALLOC(C, DATA_TYPE, NJ, NM, nj, nm);
-  POLYBENCH_2D_ARRAY_ALLOC(D, DATA_TYPE, NM, NL, nm, nl);
-  POLYBENCH_2D_ARRAY_ALLOC(G, DATA_TYPE, NI, NL, ni, nl);
-
-  /* Initialize array(s). */
-  init_array (ni, nj, nk, nl, nm,
-	      POLYBENCH_ARRAY(A),
-	      POLYBENCH_ARRAY(B),
-	      POLYBENCH_ARRAY(C),
-	      POLYBENCH_ARRAY(D));
-
-#ifdef CALL_BENCHMARK_IN_MAIN
-  benchmark();
-  finalize(argc);
-#endif
 
   return 0;
 }

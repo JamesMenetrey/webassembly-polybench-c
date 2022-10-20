@@ -162,8 +162,6 @@ void Compile(FileInfo sourceFile)
         $"--sysroot={wasiSysrootDir}",
         $"-Wl,--allow-undefined-file={wasiDefinedSymbolsFile}",
         "-Wl,--strip-all",
-        "-Wl,--export=benchmark",
-        "-Wl,--export=finalize",
         $"-D{datasetSize}",
         $"-I{sourceFile.DirectoryName}",
         $"-I{polyBenchUtilitiesDir}",

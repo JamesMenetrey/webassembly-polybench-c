@@ -123,19 +123,23 @@ void kernel_correlation(int m, int n,
 
 }
 
-/* Retrieve problem size. */
-int n = N;
-int m = M;
 
-/* Variable declaration/allocation. */
-DATA_TYPE float_n;
-POLYBENCH_2D_ARRAY_DECL_ONLY(data,DATA_TYPE,N,M,n,m);
-POLYBENCH_2D_ARRAY_DECL_ONLY(corr,DATA_TYPE,M,M,m,m);
-POLYBENCH_1D_ARRAY_DECL_ONLY(mean,DATA_TYPE,M,m);
-POLYBENCH_1D_ARRAY_DECL_ONLY(stddev,DATA_TYPE,M,m);
-
-void benchmark(void)
+int main(int argc, char** argv)
 {
+  /* Retrieve problem size. */
+  int n = N;
+  int m = M;
+
+  /* Variable declaration/allocation. */
+  DATA_TYPE float_n;
+  POLYBENCH_2D_ARRAY_DECL(data,DATA_TYPE,N,M,n,m);
+  POLYBENCH_2D_ARRAY_DECL(corr,DATA_TYPE,M,M,m,m);
+  POLYBENCH_1D_ARRAY_DECL(mean,DATA_TYPE,M,m);
+  POLYBENCH_1D_ARRAY_DECL(stddev,DATA_TYPE,M,m);
+
+  /* Initialize array(s). */
+  init_array (m, n, &float_n, POLYBENCH_ARRAY(data));
+
   /* Start timer. */
   polybench_start_instruments;
 
@@ -149,10 +153,7 @@ void benchmark(void)
   /* Stop and print timer. */
   polybench_stop_instruments;
   polybench_print_instruments;
-}
 
-void finalize(int argc)
-{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(m, POLYBENCH_ARRAY(corr)));
@@ -162,23 +163,6 @@ void finalize(int argc)
   POLYBENCH_FREE_ARRAY(corr);
   POLYBENCH_FREE_ARRAY(mean);
   POLYBENCH_FREE_ARRAY(stddev);
-}
-
-int main(int argc, char** argv)
-{
-  /* Variable allocation. */
-  POLYBENCH_2D_ARRAY_ALLOC(data,DATA_TYPE,N,M,n,m);
-  POLYBENCH_2D_ARRAY_ALLOC(corr,DATA_TYPE,M,M,m,m);
-  POLYBENCH_1D_ARRAY_ALLOC(mean,DATA_TYPE,M,m);
-  POLYBENCH_1D_ARRAY_ALLOC(stddev,DATA_TYPE,M,m);
-
-  /* Initialize array(s). */
-  init_array (m, n, &float_n, POLYBENCH_ARRAY(data));
-
-#ifdef CALL_BENCHMARK_IN_MAIN
-  benchmark();
-  finalize(argc);
-#endif
 
   return 0;
 }

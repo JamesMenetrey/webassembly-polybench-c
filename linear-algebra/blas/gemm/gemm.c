@@ -98,23 +98,30 @@ void kernel_gemm(int ni, int nj, int nk,
 
 }
 
-/* Retrieve problem size. */
-int ni = NI;
-int nj = NJ;
-int nk = NK;
 
-/* Variable declaration. */
-DATA_TYPE alpha;
-DATA_TYPE beta;
-POLYBENCH_2D_ARRAY_DECL_ONLY(C,DATA_TYPE,NI,NJ,ni,nj);
-POLYBENCH_2D_ARRAY_DECL_ONLY(A,DATA_TYPE,NI,NK,ni,nk);
-POLYBENCH_2D_ARRAY_DECL_ONLY(B,DATA_TYPE,NK,NJ,nk,nj);
-
-void benchmark(void)
+int main(int argc, char** argv)
 {
+  /* Retrieve problem size. */
+  int ni = NI;
+  int nj = NJ;
+  int nk = NK;
+
+  /* Variable declaration/allocation. */
+  DATA_TYPE alpha;
+  DATA_TYPE beta;
+  POLYBENCH_2D_ARRAY_DECL(C,DATA_TYPE,NI,NJ,ni,nj);
+  POLYBENCH_2D_ARRAY_DECL(A,DATA_TYPE,NI,NK,ni,nk);
+  POLYBENCH_2D_ARRAY_DECL(B,DATA_TYPE,NK,NJ,nk,nj);
+
+  /* Initialize array(s). */
+  init_array (ni, nj, nk, &alpha, &beta,
+	      POLYBENCH_ARRAY(C),
+	      POLYBENCH_ARRAY(A),
+	      POLYBENCH_ARRAY(B));
+
   /* Start timer. */
   polybench_start_instruments;
-  
+
   /* Run kernel. */
   kernel_gemm (ni, nj, nk,
 	       alpha, beta,
@@ -125,10 +132,7 @@ void benchmark(void)
   /* Stop and print timer. */
   polybench_stop_instruments;
   polybench_print_instruments;
-}
 
-void finalize(int argc)
-{
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
   polybench_prevent_dce(print_array(ni, nj,  POLYBENCH_ARRAY(C)));
@@ -137,26 +141,6 @@ void finalize(int argc)
   POLYBENCH_FREE_ARRAY(C);
   POLYBENCH_FREE_ARRAY(A);
   POLYBENCH_FREE_ARRAY(B);
-}
 
-
-int main(int argc, char** argv)
-{
-  /* Variable allocation. */
-  POLYBENCH_2D_ARRAY_ALLOC(C,DATA_TYPE,NI,NJ,ni,nj);
-  POLYBENCH_2D_ARRAY_ALLOC(A,DATA_TYPE,NI,NK,ni,nk);
-  POLYBENCH_2D_ARRAY_ALLOC(B,DATA_TYPE,NK,NJ,nk,nj);
-
-  /* Initialize array(s). */
-  init_array (ni, nj, nk, &alpha, &beta,
-	      POLYBENCH_ARRAY(C),
-	      POLYBENCH_ARRAY(A),
-	      POLYBENCH_ARRAY(B));
-
-#ifdef CALL_BENCHMARK_IN_MAIN
-  benchmark();
-  finalize(argc);
-#endif
-        
   return 0;
 }
