@@ -159,6 +159,8 @@ void Compile(FileInfo sourceFile)
         "--target=wasm32-wasi",
         "-O3",
         $"--sysroot={wasiSysrootDir}",
+        "-Wl,--export=malloc",
+        "-Wl,--export=free",
         $"-Wl,--allow-undefined-file={wasiDefinedSymbolsFile}",
         "-Wl,--strip-all",
         $"-D{datasetSize}",
