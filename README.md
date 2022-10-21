@@ -1,6 +1,6 @@
 # Polybench/C for WebAssembly/WASI and Docker
 
-This repository compiles Polybench/C to WebAssembly with WASI and optionally supports ahead-of-time compilation for the runtime [WAMR](https://github.com/bytecodealliance/wasm-micro-runtime).
+This repository compiles Polybench/C to WebAssembly with WASI using clang (without `emcc`) and optionally supports ahead-of-time compilation for the runtime [WAMR](https://github.com/bytecodealliance/wasm-micro-runtime).
 All the operations are made in a docker container for convenience.
 
 ## Display the usage
