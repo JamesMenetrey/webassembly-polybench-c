@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:5.0-focal
 # ==============================
 # Configuration static variables
 # ==============================
-ARG WASI_SDK_VERSION=12
+ARG WASI_SDK_VERSION=14
 ARG POLYBENCHC_ROOT_DIR=/polybenchc
 
 
