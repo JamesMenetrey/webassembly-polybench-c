@@ -35,7 +35,7 @@ while (!File.Exists(Path.Combine(polyBenchDir!.FullName, topLevelFileName)))
 void PrintUsage()
 {
     Console.WriteLine("dotnet run -- [--output /path/to/output] [--sgx] [--aot] [--display-mem-alloc] "
-                      + "[--call-benchmark-in-main] [--display-time] [--wasi-sdk /absolute/path/to/wasi-sdk] " 
+                      + "[--display-time] [--wasi-sdk /absolute/path/to/wasi-sdk] " 
                       + "[--wamr /absolute/path/to/wamr] [--dataset-size LARGE_DATASET]");
     Environment.Exit(-1);
 }
@@ -44,7 +44,6 @@ string? compilerOutputPath = null;
 bool isCompiledForSgx = false;
 bool isAoTCompiled = false;
 bool isMemAllocDisplayed = false;
-bool isBenchmarkCalledInMain = false;
 bool isTimeDisplayed = false;
 bool isAotTargetSpecified = false;
 int? boundsChecks = null;
@@ -85,9 +84,6 @@ for (var i = 0; i < args.Length; i++)
             break;
         case "--display-mem-alloc":
             isMemAllocDisplayed = true;
-            break;
-        case "--call-benchmark-in-main":
-            isBenchmarkCalledInMain = true;
             break;
         case "--display-time":
             isTimeDisplayed = true;
@@ -169,7 +165,6 @@ void Compile(FileInfo sourceFile)
     };
     
     if (isMemAllocDisplayed) arguments.Add("-DDISPLAY_MEM_ALLOC");
-    if (isBenchmarkCalledInMain) arguments.Add("-DCALL_BENCHMARK_IN_MAIN");
     if (isTimeDisplayed) arguments.Add("-DPOLYBENCH_WASI_TIME");
     
     var p = Process.Start(compilerPath, arguments);
