@@ -97,6 +97,9 @@ for (var i = 0; i < args.Length; i++)
         case "--dataset-size":
             datasetSize = args[++i];
             break;
+        case "--help":
+            PrintUsage();
+            break;
         default:
             Console.WriteLine($"Error: argument unknown '{args[i]}'");
             PrintUsage();
